@@ -1,0 +1,14 @@
+#m proyectos
+#para cada m, hay una ganancia gi si y solo si el proyecto está finalizado
+#para cada m, hay n tareas, con costo asociado ck
+#proyecto está finalizado si todas las tareas están completadas
+#1 tarea podria servir para más de 1 proyecto 
+    #Tareas no se repiten
+
+#hay un presupuesto de B para todos los proyectos
+
+#Se debe maximizar la ganancia 
+
+
+
+
