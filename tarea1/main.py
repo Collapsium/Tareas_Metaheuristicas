@@ -1,15 +1,23 @@
 import sys
 import threading
 import time
+from datetime import datetime
 
 sys.setrecursionlimit(500)
+global_earnings = 0
 
-def get_curr_global():
-    global global_earnings
+data_tuples = []
+
+def check_time_and_save_tuple_values():
     while True:
-        with open("sum_data_3.txt", "a") as file:
-            file.write(str(global_earnings) + "\n")
-        time.sleep(60)  # Sleep for 1 minute
+        current_time = time.time()
+        elapsed_time = current_time - start_time
+        if elapsed_time >= 1800:  # 30 min
+            with open("dataset_out_3.txt", "a") as file:
+                for item in data_tuples:
+                    file.write(' '.join(map(str, item)) + '\n')
+            break
+        time.sleep(30)  #repetir 30 seg
 
 def read_file(filename):
     current_list = []
@@ -26,11 +34,9 @@ def read_file(filename):
 
     return values
 
-global_earnings = 0
 def MFC(curr_proyect, curr_budget, local_earnings, tareas_visited ):
     #print(f"curr_proyect: {curr_proyect}")
     global proyects_visited
-    
     #revisar si sirve como candidato
     proyect_price = 0
     for i, x in enumerate(tareas_por_proyecto[curr_proyect]):
@@ -41,8 +47,13 @@ def MFC(curr_proyect, curr_budget, local_earnings, tareas_visited ):
 
     #restriccion presupuesto
     if curr_budget - proyect_price <= 0:
-        global global_earnings  
-        global_earnings = max(global_earnings, local_earnings)
+        global global_earnings
+        if(global_earnings < local_earnings):
+            global_earnings = local_earnings
+            current_time = time.time() - start_time
+            data_tuples.append((global_earnings, current_time))
+
+
         #print(f"GLOBAL_BUDGET :{global_earnings} ")
         return
     else:
@@ -55,7 +66,7 @@ def MFC(curr_proyect, curr_budget, local_earnings, tareas_visited ):
             proyects_visited[curr_proyect] = 0
 
     return
-lists =  read_file(r'C:\Users\kueru\Documents\VSCode\semestre_9\metaheuristicas\3_2024.txt')
+lists =  read_file(r'C:\Users\kueru\Documents\VSCode\semestre_9\metaheuristicas\tarea1\3_2024.txt')
 #print('size', len(lists))
 
 #guardar datos:
@@ -88,9 +99,10 @@ for i in range(5, len(lists)):
 
 print(f"# Filas de tareas por proyecto: {len(tareas_por_proyecto)} ; # Proyectos: {m_proyectos}")
 
-thread = threading.Thread(target=get_curr_global)
-thread.daemon = True  
-thread.start()
+start_time = time.time()
+monitor_thread = threading.Thread(target=check_time_and_save_tuple_values)
+monitor_thread.daemon = True  # Set the thread as a daemon so it terminates when the main thread terminates
+monitor_thread.start()
 
 for i in range(0, m_proyectos):
     curr_tareas_visited = [0 for _ in range(n_tareas)]
